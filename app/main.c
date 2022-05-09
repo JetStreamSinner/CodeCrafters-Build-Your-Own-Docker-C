@@ -2,29 +2,27 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
+#define FORKING_ERROR -1
+#define FORKING_SUCCESS 0
+
 // Usage: your_docker.sh run <image> <command> <arg1> <arg2> ...
 int main(int argc, char *argv[]) {
-	// Disable output buffering
-	setbuf(stdout, NULL);
+    printf("XER");
+    setbuf(stdout, NULL);
 
-	// You can use print statements as follows for debugging, they'll be visible when running tests.
-	printf("Logs from your program will appear here!\n");
+    char * command = argv[3];
 
-	 char *command = argv[3];
-	 int child_pid = fork();
-	 if (child_pid == -1) {
-	     printf("Error forking!");
-	     return 1;
-	 }
+    int child_pid = fork();
 
-	 if (child_pid == 0) {
-	 	   // Replace current program with calling program
-	     execv(command, &argv[3]);
-	 } else {
-	 	   // We're in parent
-	 	   wait(NULL);
-	 	   printf("Child terminated");
-	 }
+    if (child_pid == FORKING_ERROR) {
+        return 1;
+    }
 
-	return 0;
+    if (child_pid == FORKING_SUCCESS) {
+        execv(command, &argv[3]);
+    } else {
+        wait(NULL);
+    }
+
+    return 0;
 }
