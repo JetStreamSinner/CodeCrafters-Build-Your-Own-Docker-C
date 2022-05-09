@@ -7,7 +7,6 @@
 
 // Usage: your_docker.sh run <image> <command> <arg1> <arg2> ...
 int main(int argc, char *argv[]) {
-    printf("XER");
     setbuf(stdout, NULL);
 
     char * command = argv[3];
