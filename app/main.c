@@ -59,7 +59,6 @@ int main(int argc, char *argv[]) {
         if (stat(temporaryDirPath, &st) == -1) {
             mkdir(temporaryDirPath, temporaryDirPermissions);
         }
-        chroot(temporaryDirPath);
 
         char * targetPath = strcat(temporaryDirPath, basename(argv[3]));
         int copyingStatus = copyFile(argv[3], targetPath);
@@ -67,7 +66,7 @@ int main(int argc, char *argv[]) {
         if (copyingStatus == -1) {
             return -1;
         }
-
+        chroot(temporaryDirPath);
         execv(command, &argv[3]);
     }
 
