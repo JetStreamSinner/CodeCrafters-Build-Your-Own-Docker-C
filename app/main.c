@@ -1,6 +1,6 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <sys/wait.h>
-#include <sys/types.h>
 #include <sys/stat.h>
 #include <libgen.h>
 #include <string.h>
@@ -52,7 +52,7 @@ int main(int argc, char *argv[]) {
         return 1;
 
     if (childPid == FORKED_SUCCESS) {
-        char temporaryDirPath[] = "temp/";
+        char temporaryDirPath[] = "/temp";
         int temporaryDirPermissions = 0777;
 
         struct stat st;
@@ -60,13 +60,20 @@ int main(int argc, char *argv[]) {
             mkdir(temporaryDirPath, temporaryDirPermissions);
         }
 
-        char * targetPath = strcat(temporaryDirPath, basename(argv[3]));
+        char * targetPath = strcat("temp/", basename(argv[3]));
         int copyingStatus = copyFile(argv[3], targetPath);
 
         if (copyingStatus == -1) {
-            return -1;
+            exit(-1);
         }
-        chroot(temporaryDirPath);
+
+        int isolationStatus = chroot(temporaryDirPath);
+
+        if (isolationStatus == -1) {
+            printf("Error! Cannot isolate environment\n");
+            exit(-1);
+        }
+
         execv(command, &argv[3]);
     }
 
