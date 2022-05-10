@@ -44,8 +44,6 @@ void print_args(int argumentsCount, char * arguments[]) {
 
 int main(int argc, char *argv[]) {
 
-    print_args(argc, argv);
-
     setbuf(stdout, NULL);
     char * command = argv[3];
     int childPid = fork();
