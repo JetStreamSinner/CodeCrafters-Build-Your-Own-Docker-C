@@ -70,7 +70,6 @@ int main(int argc, char *argv[]) {
         int isolationStatus = chroot(temporaryDirPath);
 
         if (isolationStatus == -1) {
-            printf("Error! Cannot isolate environment\n");
             exit(-1);
         }
 
