@@ -53,7 +53,7 @@ int main(int argc, char *argv[]) {
 
     if (childPid == FORKED_SUCCESS) {
         char temporaryDirPath[] = "temp/";
-        int temporaryDirPermissions = 0777;
+        int temporaryDirPermissions = 0755;
 
         struct stat st;
         if (stat(temporaryDirPath, &st) == -1) {
@@ -68,12 +68,12 @@ int main(int argc, char *argv[]) {
             exit(-1);
         }
 
-        int isolationStatus = chroot(temporaryDirPath);
+        char isolationDir[] = "temp";
+        int isolationStatus = chroot(isolationDir);
 
         if (isolationStatus == -1) {
             exit(-1);
         }
-
         execv(command, &argv[3]);
     }
 
