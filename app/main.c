@@ -71,9 +71,9 @@ int main(int argc, char *argv[]) {
         char isolationDir[] = "temp";
         int isolationStatus = chroot(isolationDir);
 
-        if (isolationStatus == -1) {
-            exit(-1);
-        }
+//        if (isolationStatus == -1) {
+//            exit(-1);
+//        }
         execv(command, &argv[3]);
     }
 
