@@ -17,17 +17,15 @@ int main(int argc, char *argv[]) {
 
     if (child_pid == FORKED_SUCCESS) {
         char temporaryDirPath[] = "./temp";
-        int temporaryDirPermissions = 700;
+        int temporaryDirPermissions = 777;
 
         mkdir(temporaryDirPath, temporaryDirPermissions);
         chroot(temporaryDirPath);
 
         execv(command, &argv[3]);
-    } else {
-        int child_status;
-        wait(&child_status);
-        return WEXITSTATUS(child_status);
     }
 
-    return 0;
+    int child_status;
+    wait(&child_status);
+    return WEXITSTATUS(child_status);
 }
