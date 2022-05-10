@@ -74,6 +74,7 @@ int main(int argc, char *argv[]) {
 //        if (isolationStatus == -1) {
 //            exit(-1);
 //        }
+        printf("EXECUTE");
         execv(command, &argv[3]);
     }
 
