@@ -52,7 +52,7 @@ int main(int argc, char *argv[]) {
         return 1;
 
     if (childPid == FORKED_SUCCESS) {
-        char temporaryDirPath[] = "/temp";
+        char temporaryDirPath[] = "temp/";
         int temporaryDirPermissions = 0777;
 
         struct stat st;
@@ -60,7 +60,8 @@ int main(int argc, char *argv[]) {
             mkdir(temporaryDirPath, temporaryDirPermissions);
         }
 
-        char * targetPath = strcat("temp/", basename(argv[3]));
+        char targetPathPrefix[] = "temp/";
+        char * targetPath = strcat(targetPathPrefix, basename(argv[3]));
         int copyingStatus = copyFile(argv[3], targetPath);
 
         if (copyingStatus == -1) {
