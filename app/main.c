@@ -62,16 +62,18 @@ int main(int argc, char *argv[]) {
 
         char targetPathPrefix[] = "temp/";
         char * targetPath = strcat(targetPathPrefix, basename(argv[3]));
+        printf("Target path: %s\n", targetPath);
         int copyingStatus = copyFile(argv[3], targetPath);
 
         if (copyingStatus == -1) {
+            printf("Cannot copying files\n");
             exit(-1);
         }
 
         char isolationDir[] = "temp/";
         if (chroot(isolationDir) != 0) {
-//            printf("Failed chroot %s\n", isolationDir);
-            rmdir("temp/");
+            printf("Failed chroot %s\n", isolationDir);
+            rmdir("temp");
             exit(-1);
         }
         execv(command, &argv[3]);
