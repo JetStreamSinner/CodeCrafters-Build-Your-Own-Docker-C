@@ -13,6 +13,7 @@
 
 #define TEMP_DIR_PATH "temp/"
 #define TEMP_DIR_PERMISSIONS 0777
+#define TEMP_EXEC_NAME "tmp_exec"
 
 int dir_exist(char * path) {
     struct stat st;
@@ -34,18 +35,23 @@ int copyFile(char * fromPath, char * toPath) {
         return -1;
     }
 
-    FILE * targetFile = fopen(toPath, "wb+");
+    FILE * targetFile = fopen(toPath, "wb");
 
     if (targetFile == NULL) {
         printf("Error! Cannot create target file\n");
         return -1;
     }
 
-    char byte = fgetc(sourceFile);
-    while (byte != EOF) {
-        fputc(byte, targetFile);
-        byte = fgetc(sourceFile);
-    }
+    int n, m;
+    unsigned char buffer[DEFAULT_BUFFER_SIZE];
+    do {
+        n = fread(buffer, 1, sizeof buffer, sourceFile);
+        if (n) {
+            m = fwrite(buffer, 1, n, targetFile);
+        } else {
+            m = 0;
+        }
+    } while (n > 0 && n == m);
 
     fclose(sourceFile);
     fclose(targetFile);
@@ -64,15 +70,15 @@ void print_work_directory() {
     printf("Current work directory: %s\n", currentWorkDirectory);
 }
 
-void handle_child_process(char * command, char * argv[]) {
+void handle_child_process(char * argv[]) {
     if (!dir_exist(TEMP_DIR_PATH)) {
         mkdir(TEMP_DIR_PATH, TEMP_DIR_PERMISSIONS);
     }
 
+    char * command = argv[3];
     char targetPathPrefix[DEFAULT_BUFFER_SIZE];
     strcpy(targetPathPrefix, TEMP_DIR_PATH);
-    char * targetPath = strcat(targetPathPrefix, basename(command));
-
+    char * targetPath = strcat(targetPathPrefix, basename(TEMP_EXEC_NAME));
 
 
     int copyingStatus = copyFile(command, targetPath);
@@ -87,10 +93,16 @@ void handle_child_process(char * command, char * argv[]) {
         exit(-1);
     }
 
-    char * tempCommandName = basename(command);
-    chmod(tempCommandName, TEMP_DIR_PERMISSIONS);
+    char * tempCommandName = basename(TEMP_EXEC_NAME);
+    int changeModStatus = chmod(tempCommandName, TEMP_DIR_PERMISSIONS);
+
+    if (changeModStatus != 0) {
+        perror("Error when try change file permissions");
+        exit(changeModStatus);
+    }
+
     char * temporaryArguments[] = {
-            tempCommandName,
+            TEMP_EXEC_NAME,
             argv[4],
             argv[5],
             NULL
@@ -103,16 +115,14 @@ void handle_child_process(char * command, char * argv[]) {
 
 
 int main(int argc, char *argv[]) {
-
     setbuf(stdout, NULL);
-    char * command = argv[3];
     int childPid = fork();
 
     if (childPid == FORK_ERROR_CODE)
         return 1;
 
     if (childPid == FORKED_SUCCESS) {
-        handle_child_process(command, argv);
+        handle_child_process(argv);
     }
 
     int childStatus;
