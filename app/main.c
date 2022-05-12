@@ -53,7 +53,7 @@ int main(int argc, char *argv[]) {
 
     if (childPid == FORKED_SUCCESS) {
         char temporaryDirPath[] = "temp/";
-        int temporaryDirPermissions = 0755;
+        int temporaryDirPermissions = 0777;
 
         struct stat st;
         if (stat(temporaryDirPath, &st) == -1) {
@@ -68,12 +68,13 @@ int main(int argc, char *argv[]) {
             exit(-1);
         }
 
-        char isolationDir[] = "temp";
-        int isolationStatus = chroot(isolationDir);
+        char isolationDir[] = "/temp";
 
-//        if (isolationStatus == -1) {
-//            exit(-1);
-//        }
+        system("pwd");
+        if (chroot(isolationDir) != 0) {
+            printf("Failed chroot %s\n", isolationDir);
+            exit(-1);
+        }
         execv(command, &argv[3]);
     }
 
