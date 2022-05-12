@@ -62,7 +62,6 @@ int main(int argc, char *argv[]) {
 
         char targetPathPrefix[] = "temp/";
         char * targetPath = strcat(targetPathPrefix, basename(argv[3]));
-        printf("Target path: %s\n", targetPath);
         int copyingStatus = copyFile(argv[3], targetPath);
 
         if (copyingStatus == -1) {
