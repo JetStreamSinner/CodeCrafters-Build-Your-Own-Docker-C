@@ -5,6 +5,7 @@
 #include <libgen.h>
 #include <string.h>
 #include <unistd.h>
+#include <errno.h>
 
 #define FORK_ERROR_CODE -1
 #define FORKED_SUCCESS 0
@@ -72,23 +73,32 @@ void handle_child_process(char * command, char * argv[]) {
     strcpy(targetPathPrefix, TEMP_DIR_PATH);
     char * targetPath = strcat(targetPathPrefix, basename(command));
 
-    char * tempCommandName = basename(command);
 
 
-    int copyingStatus = copyFile(argv[3], targetPath);
+    int copyingStatus = copyFile(command, targetPath);
     if (copyingStatus == -1) {
         printf("Cannot copying files\n");
         exit(-1);
     }
 
-    if (chroot(TEMP_DIR_PATH) != 0) {
+    chdir(TEMP_DIR_PATH);
+    if (chroot(".") != 0) {
         printf("Failed chroot %s\n", TEMP_DIR_PATH);
         exit(-1);
     }
-    chdir(TEMP_DIR_PATH);
-    chmod(tempCommandName, TEMP_DIR_PERMISSIONS);
 
-    execv(tempCommandName, &argv[4]);
+    char * tempCommandName = basename(command);
+    chmod(tempCommandName, TEMP_DIR_PERMISSIONS);
+    char * temporaryArguments[] = {
+            tempCommandName,
+            argv[4],
+            argv[5],
+            NULL
+    };
+
+    int executionStatus = execv(tempCommandName, temporaryArguments);
+    perror("Error when try execute command");
+    exit(executionStatus);
 }
 
 
