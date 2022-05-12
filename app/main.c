@@ -72,6 +72,8 @@ void handle_child_process(char * command, char * argv[]) {
     strcpy(targetPathPrefix, TEMP_DIR_PATH);
     char * targetPath = strcat(targetPathPrefix, basename(command));
 
+    char * tempCommandName = basename(command);
+
 
     int copyingStatus = copyFile(argv[3], targetPath);
     if (copyingStatus == -1) {
@@ -84,7 +86,9 @@ void handle_child_process(char * command, char * argv[]) {
         exit(-1);
     }
     chdir(TEMP_DIR_PATH);
-    execv(command, &argv[3]);
+    chmod(tempCommandName, TEMP_DIR_PERMISSIONS);
+
+    execv(tempCommandName, &argv[4]);
 }
 
 
