@@ -68,11 +68,12 @@ int main(int argc, char *argv[]) {
             exit(-1);
         }
 
-//        char isolationDir[] = "/temp";
-//        if (chroot(isolationDir) != 0) {
+        char isolationDir[] = "temp/";
+        if (chroot(isolationDir) != 0) {
 //            printf("Failed chroot %s\n", isolationDir);
-//            exit(-1);
-//        }
+            rmdir("temp/");
+            exit(-1);
+        }
         execv(command, &argv[3]);
     }
 
