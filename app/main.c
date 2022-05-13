@@ -1,3 +1,5 @@
+#define _GNU_SOURCE
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/wait.h>
@@ -6,10 +8,14 @@
 #include <string.h>
 #include <unistd.h>
 #include <errno.h>
+#include <sched.h>
+#include <sys/utsname.h>
+#include <sys/mman.h>
 
 #define FORK_ERROR_CODE -1
 #define FORKED_SUCCESS 0
 #define DEFAULT_BUFFER_SIZE 1024
+#define CHILD_STACK_SIZE (1024 * 1024)
 
 #define TEMP_DIR_PATH "temp/"
 #define TEMP_DIR_PERMISSIONS 0777
@@ -70,7 +76,10 @@ void print_work_directory() {
     printf("Current work directory: %s\n", currentWorkDirectory);
 }
 
-void handle_child_process(char * argv[]) {
+int handle_child_process(void * args) {
+
+    char ** argv = (char**)(args);
+
     if (!dir_exist(TEMP_DIR_PATH)) {
         mkdir(TEMP_DIR_PATH, TEMP_DIR_PERMISSIONS);
     }
@@ -116,7 +125,19 @@ void handle_child_process(char * argv[]) {
 
 int main(int argc, char *argv[]) {
     setbuf(stdout, NULL);
-    int childPid = fork();
+
+    char * stack;
+    char * stackTop;
+    int childPid;
+    struct utsname uts;
+
+    stack = mmap(NULL, CHILD_STACK_SIZE, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS | MAP_STACK, -1, 0);
+    if (stack == MAP_FAILED) {
+        exit(EXIT_FAILURE);
+    }
+    stackTop = stack + CHILD_STACK_SIZE;
+    childPid = clone(handle_child_process, stackTop, CLONE_NEWPID | SIGCHLD, argv);
+
 
     if (childPid == FORK_ERROR_CODE)
         return 1;
@@ -127,6 +148,6 @@ int main(int argc, char *argv[]) {
 
     int childStatus;
     wait(&childStatus);
-//    cleanup_environment();
+    cleanup_environment();
     return WEXITSTATUS(childStatus);
 }
