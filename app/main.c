@@ -53,7 +53,7 @@ int copyFile(char * fromPath, char * toPath) {
     do {
         byte = fread(buffer, 1, sizeof buffer, sourceFile);
         if (byte) {
-            byte = fwrite(buffer, 1, n, targetFile);
+            byte = fwrite(buffer, 1, byte, targetFile);
         } else {
             byte = 0;
         }
