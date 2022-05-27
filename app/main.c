@@ -48,16 +48,16 @@ int copyFile(char * fromPath, char * toPath) {
         return -1;
     }
 
-    int n, m;
+    int byte;
     unsigned char buffer[DEFAULT_BUFFER_SIZE];
     do {
-        n = fread(buffer, 1, sizeof buffer, sourceFile);
-        if (n) {
-            m = fwrite(buffer, 1, n, targetFile);
+        byte = fread(buffer, 1, sizeof buffer, sourceFile);
+        if (byte) {
+            byte = fwrite(buffer, 1, n, targetFile);
         } else {
-            m = 0;
+            byte = 0;
         }
-    } while (n > 0 && n == m);
+    } while (n > 0);
 
     fclose(sourceFile);
     fclose(targetFile);
