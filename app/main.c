@@ -57,7 +57,7 @@ int copyFile(char * fromPath, char * toPath) {
         } else {
             byte = 0;
         }
-    } while (n > 0);
+    } while (byte > 0);
 
     fclose(sourceFile);
     fclose(targetFile);
